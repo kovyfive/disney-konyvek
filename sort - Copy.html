@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Sort Books</title>
+  <style>
+    body {
+      display: flex;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    textarea {
+      width: 30%;
+      height: 90vh;
+      padding: 10px;
+      font-size: 14px;
+    }
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 0 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .output {
+      width: 50%;
+      height: 90vh;
+      border: 1px solid #ccc;
+      overflow-y: auto;
+    }
+    .stripe {
+      padding: 10px;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <textarea id="inputArea" placeholder="Paste lines like:\nbook title rgb(233,24,22)"></textarea>
+  <div class="button-container">
+    <button onclick="sortAndDisplay('stepInverted')">Step (Inverted)</button>
+    <button onclick="sortAndDisplay('step')">Step</button>
+    <button onclick="sortAndDisplay('hsv')">HSV</button>
+    <button onclick="sortAndDisplay('hls')">HLS</button>
+    <button onclick="sortAndDisplay('luminosity')">Luminosity</button>
+    <button onclick="sortAndDisplay('hilbert')">Hilbert</button>
+    <button onclick="sortAndDisplay('tsp')">Traveling Salesman</button>
+  </div>
+  <div class="output" id="outputArea"></div>
+
+  <script>
+    function parseRGB(rgbStr) {
+      const match = rgbStr.match(/rgb\((\d+),(\d+),(\d+)\)/);
+      return match ? [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])] : null;
+    }
+
+    function rgbToHSV(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, v = max;
+      const d = max - min;
+      s = max === 0 ? 0 : d / max;
+      if (max === min) {
+        h = 0;
+      } else {
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return [h, s, v];
+    }
+
+    function rgbToHLS(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      const l = (max + min) / 2;
+      let h, s;
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return [h, l, s];
+    }
+
+    function luminosity(r, g, b) {
+      return Math.sqrt(0.241 * r + 0.691 * g + 0.068 * b);
+    }
+
+    function step(r, g, b, repetitions = 8) {
+      const lum = Math.sqrt(0.241 * r + 0.691 * g + 0.068 * b);
+      const [h, s, v] = rgbToHSV(r, g, b);
+      let h2 = Math.floor(h * repetitions);
+      let lum2 = Math.floor(lum * repetitions);
+      let v2 = Math.floor(v * repetitions);
+      return [h2, lum2, v2];
+    }
+
+    function stepInverted(r, g, b, repetitions = 8) {
+      let lum = Math.sqrt(0.241 * r + 0.691 * g + 0.068 * b);
+      const [h, s, v] = rgbToHSV(r, g, b);
+      let h2 = Math.floor(h * repetitions);
+      let lum2 = Math.floor(lum * repetitions);
+      let v2 = Math.floor(v * repetitions);
+      if (h2 % 2 === 1) {
+        v2 = repetitions - v2;
+        lum = repetitions - lum;
+      }
+      return [h2, lum, v2];
+    }
+
+    function hilbertIndex(r, g, b) {
+      const x = r, y = g, z = b;
+      const bits = 8;
+      let index = 0;
+      for (let i = bits - 1; i >= 0; i--) {
+        let mask = 1 << i;
+        index <<= 3;
+        index |= ((x & mask) ? 4 : 0) | ((y & mask) ? 2 : 0) | ((z & mask) ? 1 : 0);
+      }
+      return index;
+    }
+
+    function tspSort(items) {
+      const dist = (a, b) => Math.sqrt((a.r - b.r)**2 + (a.g - b.g)**2 + (a.b - b.b)**2);
+      const visited = Array(items.length).fill(false);
+      const path = [0];
+      visited[0] = true;
+      for (let i = 1; i < items.length; i++) {
+        const last = path[path.length - 1];
+        let nearest = -1, minDist = Infinity;
+        for (let j = 0; j < items.length; j++) {
+          if (!visited[j]) {
+            const d = dist(items[last], items[j]);
+            if (d < minDist) {
+              minDist = d;
+              nearest = j;
+            }
+          }
+        }
+        path.push(nearest);
+        visited[nearest] = true;
+      }
+      return path.map(i => items[i]);
+    }
+
+    function sortAndDisplay(method) {
+      const input = document.getElementById('inputArea').value.trim();
+      const lines = input.split('\n');
+      let items = [];
+
+      for (const line of lines) {
+        const match = line.match(/(.+)\s+rgb\((\d+),(\d+),(\d+)\)/);
+        if (match) {
+          const title = match[1].trim();
+          const r = parseInt(match[2]), g = parseInt(match[3]), b = parseInt(match[4]);
+          items.push({ title, r, g, b });
+        }
+      }
+
+      switch (method) {
+        case 'hsv':
+          items.sort((a, b) => rgbToHSV(a.r, a.g, a.b).toString().localeCompare(rgbToHSV(b.r, b.g, b.b).toString()));
+          break;
+        case 'hls':
+          items.sort((a, b) => rgbToHLS(a.r, a.g, a.b).toString().localeCompare(rgbToHLS(b.r, b.g, b.b).toString()));
+          break;
+        case 'luminosity':
+          items.sort((a, b) => luminosity(a.r, a.g, a.b) - luminosity(b.r, b.g, b.b));
+          break;
+        case 'step':
+          items.sort((a, b) => step(a.r, a.g, a.b).toString().localeCompare(step(b.r, b.g, b.b).toString()));
+          break;
+        case 'stepInverted':
+          items.sort((a, b) => stepInverted(a.r, a.g, a.b).toString().localeCompare(stepInverted(b.r, b.g, b.b).toString()));
+          break;
+        case 'hilbert':
+          items.sort((a, b) => hilbertIndex(a.r, a.g, a.b) - hilbertIndex(b.r, b.g, b.b));
+          break;
+        case 'tsp':
+          items = tspSort(items);
+          break;
+      }
+
+      const output = document.getElementById('outputArea');
+      output.innerHTML = '';
+      for (const item of items) {
+        const stripe = document.createElement('div');
+        stripe.className = 'stripe';
+        stripe.style.backgroundColor = `rgb(${item.r},${item.g},${item.b})`;
+        stripe.textContent = item.title;
+        output.appendChild(stripe);
+      }
+    }
+  </script>
+</body>
+</html>

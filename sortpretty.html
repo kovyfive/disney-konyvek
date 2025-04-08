@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Sort Books</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      display: flex;
+      flex-direction: row;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: #f7f9fc;
+      color: #333;
+    }
+    textarea {
+      width: 30%;
+      height: 100%;
+      padding: 20px;
+      font-size: 14px;
+      border: none;
+      resize: none;
+      background: #fff;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+    }
+    .button-container {
+      width: 20%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px;
+      background: #eaeef3;
+      box-shadow: inset -1px 0 3px rgba(0,0,0,0.05);
+      overflow-y: auto;
+    }
+    button {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 10px 15px;
+      font-size: 14px;
+      border: none;
+      background-color: #4a90e2;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #357ABD;
+    }
+    .output {
+      width: 50%;
+      height: 100%;
+      overflow-y: auto;
+      padding: 10px;
+      background: #fff;
+    }
+    .stripe {
+      padding: 10px;
+      color: white;
+      font-weight: bold;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <textarea id="inputArea">
+  101 Kiskutya	rgb(99,142,179)
+101 kiskutya 2.  Paca és Agyar	rgb(0,181,221)
+101 kiskutya kincset keres	rgb(22,71,110)
+102 Kiskutya	rgb(0,109,183)
+A dzsungel könyve 2	rgb(234,135,28)
+A három piszkos kiskacsa	rgb(74,142,184)
+A róka és a vadászkutya	rgb(201,66,20)
+A Szépség és a Szörnyeteg	rgb(0,103,162)
+A Szörnyeteg és a kismadár	rgb(0,132,198)
+A teknősbéka és a nyúl	rgb(0,200,206)
+Aladdin	rgb(209,0,32)
+Alice Csodaországban	rgb(71,108,111)
+Antoine bácsi, a kalandor kandúr	rgb(69,84,80)
+Arielle, a kis hableány	rgb(81,115,63)
+Atlantisz  Az elveszett birodalom	rgb(62,67,70)
+Bambi	rgb(205,136,0)
+Bambi és a szomorú mackó	rgb(39,147,195)
+Bernard és Bianca – Az egérmentők	rgb(211,105,149)
+Betyár kutyus a cirkuszban	rgb(136,130,154)
+Chip és Dale	rgb(142,0,12)
+Chip és Dale óvodája	rgb(216,137,0)
+Csipkerózsika	rgb(64,99,189)
+Dagobert bácsi karácsonya	rgb(198,77,0)
+Donal kacsa és az állatbemutató	rgb(0,109,177)
+Donald kacsa szülinapja	rgb(100,121,173)
+Donald Kacsa, a tűzoltó	rgb(185,0,0)
+Donald kacsaúsztató	rgb(158,0,11)
+Dumbó kalandjai Afrikában	rgb(110,140,107)
+Dzsungel kölykök	rgb(0,86,32)
+Elefánt Elemér	rgb(213,169,0)
+Farkaska és a három kívánság	rgb(0,86,139)
+Hamupipőke	rgb(244,150,187)
+Hamupipőke – Lucifer születésnapi ajándéka	rgb(137,142,39)
+Hamupipőke születésnapja	rgb(211,166,12)
+Herkules	rgb(2,91,5)
+Hófehérke és a hét törpe	rgb(127,157,139)
+Hófehérke karácsonya	rgb(173,8,11)
+Karácsony az Északi-sarkon	rgb(172,0,6)
+Ki mit tud? a Pagonyban	rgb(49,93,153)
+Koldus és királyfi	rgb(239,77,68)
+Macskarisztokraták	rgb(169,156,160)
+Micimackó és a mézfa	rgb(152,21,20)
+Micimackó és Tigris	rgb(193,90,0)
+Micimackó karácsonya	rgb(0,107,60)
+Mickey és a pumakölyök	rgb(75,107,32)
+Mickey és az égig érő paszuly	rgb(143,131,20)
+Mickey, a varázslóinas	rgb(148,119,139)
+Mulán	rgb(139,4,9)
+Pán Péter	rgb(120,158,49)
+Pinocchio	rgb(204,49,52)
+Pocahontas	rgb(60,74,143)
+Pocahontas II.  Vár egy új világ	rgb(167,0,54)
+Postakacsa	rgb(40,124,155)
+Pumbaa világgá megy	rgb(94,129,35)
+Quasimodo, az igaz jó barát	rgb(56,51,5)
+Robin Hood: János herceg csatája	rgb(211,179,76)
+Simba büszkesége	rgb(175,80,0)
+Simba és az özönvíz	rgb(33,70,118)
+Susi és Tekergő	rgb(64,121,120)
+Tapsifüles és a nagy tűz	rgb(109,104,92)
+Tarzan	rgb(80,82,21)
+Tarzan és a dzsungelolimpia	rgb(28,160,211)
+Tigris színre lép	rgb(200,74,22)
+Agymanók	rgb(32,47,109)
+Egy bogár élete	rgb(158,132,2)
+L'ecsó	rgb(55,100,109)
+Némó nyomában	rgb(14,84,144)
+Némo nyomában-Cápa a pácban	rgb(46,50,96)
+Szörny Rt. 	rgb(127,104,186)
+Toy Story	rgb(0,85,155)
+Toy Story 3	rgb(93,41,95)
+Wall-E	rgb(213,158,61)
+A hercegnő és a béka	rgb(98,79,143)
+A repülő kisegér	rgb(169,0,3)
+Az egérmentők ausztráliában	rgb(33,67,127)
+Hófehérke látogatása a hét törpénél	rgb(49,135,194)
+Jafar visszatér	rgb(167,30,6)
+Malacka, a hős	rgb(203,0,77)
+Szörny egyetem	rgb(0,84,155)
+A rút kiskacsa	rgb(180,126,31)
+Bambi 2 - Az erdő királya	rgb(197,63,10)
+Csodacsibe	rgb(236,210,63)
+Farkas malacbőrben	rgb(146,0,8)
+Halloween és a Zelefánt	rgb(76,66,23)
+Micimackó és az óriási méhkaptár	rgb(203,225,235)
+Mickey karácsonyi ajándéka	rgb(235,0,35)
+Ne nézzetek madárnak!	rgb(122,0,13)
+Pluto mama	rgb(33,48,93)
+Volt	rgb(86,92,125)
+	
+  </textarea>
+  <div class="button-container">
+    <button onclick="sortAndDisplay('stepInverted')">Step (Inverted)</button>
+    <button onclick="sortAndDisplay('step')">Step</button>
+    <button onclick="sortAndDisplay('hsv')">HSV</button>
+    <button onclick="sortAndDisplay('hls')">HLS</button>
+    <button onclick="sortAndDisplay('luminosity')">Luminosity</button>
+    <button onclick="sortAndDisplay('hilbert')">Hilbert</button>
+    <button onclick="sortAndDisplay('tsp')">Traveling Salesman</button>
+  </div>
+  <div class="output" id="outputArea"></div>
+
+  <script>
+    function parseRGB(rgbStr) {
+      const match = rgbStr.match(/rgb\((\d+),(\d+),(\d+)\)/);
+      return match ? [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])] : null;
+    }
+
+    function rgbToHSV(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, v = max;
+      const d = max - min;
+      s = max === 0 ? 0 : d / max;
+      if (max === min) {
+        h = 0;
+      } else {
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return [h, s, v];
+    }
+
+    function rgbToHLS(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      const l = (max + min) / 2;
+      let h, s;
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return [h, l, s];
+    }
+
+    function luminosity(r, g, b) {
+      return Math.sqrt(0.241 * r + 0.691 * g + 0.068 * b);
+    }
+
+    function step(r, g, b, repetitions = 8) {
+      const lum = Math.sqrt(0.241 * r + 0.691 * g + 0.068 * b);
+      const [h, s, v] = rgbToHSV(r, g, b);
+      let h2 = Math.floor(h * repetitions);
+      let lum2 = Math.floor(lum * repetitions);
+      let v2 = Math.floor(v * repetitions);
+      return [h2, lum2, v2];
+    }
+
+    function stepInverted(r, g, b, repetitions = 8) {
+      let lum = Math.sqrt(0.241 * r + 0.691 * g + 0.068 * b);
+      const [h, s, v] = rgbToHSV(r, g, b);
+      let h2 = Math.floor(h * repetitions);
+      let lum2 = Math.floor(lum * repetitions);
+      let v2 = Math.floor(v * repetitions);
+      if (h2 % 2 === 1) {
+        v2 = repetitions - v2;
+        lum = repetitions - lum;
+      }
+      return [h2, lum, v2];
+    }
+
+    function hilbertIndex(r, g, b) {
+      const x = r, y = g, z = b;
+      const bits = 8;
+      let index = 0;
+      for (let i = bits - 1; i >= 0; i--) {
+        let mask = 1 << i;
+        index <<= 3;
+        index |= ((x & mask) ? 4 : 0) | ((y & mask) ? 2 : 0) | ((z & mask) ? 1 : 0);
+      }
+      return index;
+    }
+
+    function tspSort(items) {
+      const dist = (a, b) => Math.sqrt((a.r - b.r)**2 + (a.g - b.g)**2 + (a.b - b.b)**2);
+      const visited = Array(items.length).fill(false);
+      const path = [0];
+      visited[0] = true;
+      for (let i = 1; i < items.length; i++) {
+        const last = path[path.length - 1];
+        let nearest = -1, minDist = Infinity;
+        for (let j = 0; j < items.length; j++) {
+          if (!visited[j]) {
+            const d = dist(items[last], items[j]);
+            if (d < minDist) {
+              minDist = d;
+              nearest = j;
+            }
+          }
+        }
+        path.push(nearest);
+        visited[nearest] = true;
+      }
+      return path.map(i => items[i]);
+    }
+
+    function compareArrays(a, b) {
+      for (let i = 0; i < a.length; i++) {
+        if (a[i] < b[i]) return -1;
+        if (a[i] > b[i]) return 1;
+      }
+      return 0;
+    }
+
+    function sortAndDisplay(method) {
+      const input = document.getElementById('inputArea').value.trim();
+      const lines = input.split('\n');
+      let items = [];
+
+      for (const line of lines) {
+        const match = line.match(/(.+)\s+rgb\((\d+),(\d+),(\d+)\)/);
+        if (match) {
+          const title = match[1].trim();
+          const r = parseInt(match[2]), g = parseInt(match[3]), b = parseInt(match[4]);
+          items.push({ title, r, g, b });
+        }
+      }
+
+      switch (method) {
+        case 'hsv':
+          items.sort((a, b) => compareArrays(rgbToHSV(a.r, a.g, a.b), rgbToHSV(b.r, b.g, b.b)));
+          break;
+       case 'hls':
+		  items.sort((a, b) => {
+			const [ha, la, sa] = rgbToHLS(a.r, a.g, a.b);
+			const [hb, lb, sb] = rgbToHLS(b.r, b.g, b.b);
+			return ha - hb || la - lb || sa - sb;
+		  });
+		  break;
+        case 'luminosity':
+          items.sort((a, b) => luminosity(a.r, a.g, a.b) - luminosity(b.r, b.g, b.b));
+          break;
+        case 'step':
+          items.sort((a, b) => compareArrays(step(a.r, a.g, a.b), step(b.r, b.g, b.b)));
+          break;
+        case 'stepInverted':
+          items.sort((a, b) => compareArrays(stepInverted(a.r, a.g, a.b), stepInverted(b.r, b.g, b.b)));
+          break;
+        case 'hilbert':
+          items.sort((a, b) => hilbertIndex(a.r, a.g, a.b) - hilbertIndex(b.r, b.g, b.b));
+          break;
+        case 'tsp':
+          items = tspSort(items);
+          break;
+      }
+
+      const output = document.getElementById('outputArea');
+      output.innerHTML = '';
+      for (const item of items) {
+        const stripe = document.createElement('div');
+        stripe.className = 'stripe';
+        stripe.style.backgroundColor = `rgb(${item.r},${item.g},${item.b})`;
+        stripe.textContent = item.title;
+        output.appendChild(stripe);
+      }
+    }
+  </script>
+</body>
+</html>
