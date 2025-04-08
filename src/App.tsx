@@ -2,6 +2,9 @@ import React, { JSX, useState } from 'react';
 import { Input, Button, Slider, Select, Space, Typography, Layout, Card } from 'antd';
 import 'antd/dist/reset.css';
 import './App.css';
+// @ts-ignore
+import {hilbert} from 'hilbert';
+import * as math from 'mathjs';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -66,6 +69,35 @@ function stepSort(r: number, g: number, b: number, repetitions = 8): [number, nu
   return [h2, lum2, v2];
 }
 
+function euclidean(a: ColorItem, b: ColorItem): number {
+  return Math.sqrt((a.r - b.r) ** 2 + (a.g - b.g) ** 2 + (a.b - b.b) ** 2);
+}
+
+function tspSort(items: ColorItem[]): ColorItem[] {
+  const visited = Array(items.length).fill(false);
+  const path: number[] = [0];
+  visited[0] = true;
+  for (let i = 1; i < items.length; i++) {
+    let last = path[path.length - 1];
+    let nearest = -1;
+    let minDist = Infinity;
+    for (let j = 0; j < items.length; j++) {
+      if (!visited[j]) {
+        const dist = euclidean(items[last], items[j]);
+        if (dist < minDist) {
+          minDist = dist;
+          nearest = j;
+        }
+      }
+    }
+    if (nearest !== -1) {
+      path.push(nearest);
+      visited[nearest] = true;
+    }
+  }
+  return path.map(i => items[i]);
+}
+
 const App: React.FC = () => {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState<JSX.Element[]>([]);
@@ -101,18 +133,16 @@ const App: React.FC = () => {
         });
         break;
       case 'step':
-        items.sort((a, b) => {
-          const sa = stepSort(a.r, a.g, a.b);
-          const sb = stepSort(b.r, b.g, b.b);
-          return sa.toString().localeCompare(sb.toString());
-        });
+        items.sort((a, b) => stepSort(a.r, a.g, a.b).toString().localeCompare(stepSort(b.r, b.g, b.b).toString()));
         break;
       case 'invertedStep':
-        items.sort((a, b) => {
-          const sa = stepSort(a.r, a.g, a.b);
-          const sb = stepSort(b.r, b.g, b.b);
-          return sb.toString().localeCompare(sa.toString());
-        });
+        items.sort((a, b) => stepSort(b.r, b.g, b.b).toString().localeCompare(stepSort(a.r, a.g, a.b).toString()));
+        break;
+      case 'hilbert':
+        items.sort((a, b) => hilbert.xy2d(256, a.r, a.g) - hilbert.xy2d(256, b.r, b.g));
+        break;
+      case 'tsp':
+        items = tspSort(items);
         break;
       case 'luminosity':
       default:
@@ -170,20 +200,16 @@ const App: React.FC = () => {
         <Space direction="vertical" style={{ marginBottom: 20 }}>
           <Title level={4}>Sorting Options</Title>
           <Space>
-            <Select defaultValue={sortMethod} onChange={(val) => setSortMethod(val)} style={{ width: 180 }}>
+            <Select defaultValue={sortMethod} onChange={(val) => setSortMethod(val)} style={{ width: 200 }}>
               <Option value="luminosity">Luminosity</Option>
               <Option value="hsv">HSV</Option>
               <Option value="hls">HLS</Option>
               <Option value="step">Step Sorting</Option>
               <Option value="invertedStep">Inverted Step</Option>
+              <Option value="hilbert">Hilbert</Option>
+              <Option value="tsp">Traveling Salesman</Option>
             </Select>
-            <Slider
-              min={1}
-              max={4}
-              value={groupCount}
-              onChange={(val) => setGroupCount(val)}
-              style={{ width: 200 }}
-            />
+            <Slider min={1} max={4} value={groupCount} onChange={(val) => setGroupCount(val)} style={{ width: 200 }} />
             <Button type="primary" onClick={handleSort}>
               Sort Now
             </Button>
